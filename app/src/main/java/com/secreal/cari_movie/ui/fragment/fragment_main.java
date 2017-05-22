@@ -53,6 +53,7 @@ public class fragment_main extends Fragment {
 
     @BindView(R.id.gdMain) GridView gdMain;
     @BindView(R.id.txLoadMore) TextView txLoadMore;
+    @BindView(R.id.txTitle) TextView txTitle;
     @BindView(R.id.ivCol1) ImageView ivCol1;
     @BindView(R.id.ivCol2) ImageView ivCol2;
     @BindView(R.id.ivCol3) ImageView ivCol3;
@@ -69,7 +70,7 @@ public class fragment_main extends Fragment {
     private String primaryRelease = "/discover/movie?primary_release_date.gte=2014-09-15&primary_release_date.lte=2014-10-22";
     private String imageUrl = "https://image.tmdb.org/t/p/w640";
     private int page;
-    private int halaman;
+    private int totalMovie;
     private OnFragmentInteractionListener mListener;
 
     AdapterMovie adapterMovie;
@@ -150,7 +151,7 @@ public class fragment_main extends Fragment {
             public void onResponse(JSONObject response) {
                 try {
                     JSONArray resultsJA = response.getJSONArray("results");
-                    halaman = response.getInt("page");
+                    totalMovie = response.getInt("total_results");
                     for(int i = 0; i < 20; ++i){
                         Movie movie = new Movie();
                         JSONObject result = resultsJA.getJSONObject(i);
@@ -159,10 +160,10 @@ public class fragment_main extends Fragment {
                         movieList.add(movie);
                         adapterMovie.notifyDataSetChanged();
                     }
+                    txTitle.setText("Car I-Movie, " + totalMovie + " Movies");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                System.out.println("Halaman = " + halaman);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -185,7 +186,7 @@ public class fragment_main extends Fragment {
                     public void onResponse(JSONObject response) {
                         try {
                             JSONArray resultsJA = response.getJSONArray("results");
-                            halaman = response.getInt("page");
+                            totalMovie = response.getInt("page");
                             for(int i = 0; i < 20; ++i){
                                 Movie movie = new Movie();
                                 JSONObject result = resultsJA.getJSONObject(i);
@@ -197,7 +198,6 @@ public class fragment_main extends Fragment {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        System.out.println("Halaman = " + halaman);
                     }
                 }, new Response.ErrorListener() {
                     @Override
