@@ -1,14 +1,28 @@
 package com.secreal.cari_movie.ui.fragment;
 
-import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.secreal.cari_movie.Dao.Movie;
 import com.secreal.cari_movie.R;
+import com.squareup.picasso.Picasso;
+
+import org.json.JSONObject;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +41,18 @@ public class fragment_detail extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    Movie movie;
+    @BindView(R.id.gajelas) TextView gajelas;
+    @BindView(R.id.txTitleMovie) TextView txTitleMovie;
+    @BindView(R.id.txOverviewMovie) TextView txOverviewMovie;
+    @BindView(R.id.rlBackground) FrameLayout rlBackground;
+    @BindView(R.id.ivBackImage) ImageView ivBackImage;
+    @BindView(R.id.ivPrimary) ImageView ivPrimary;
+
+    private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894&language=en-US";
+    private String url = "https://api.themoviedb.org/3";
+    private String full_url = null;
+    private String movieDetail = "/movie/";
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,24 +91,41 @@ public class fragment_detail extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_fragment_detail, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        ButterKnife.bind(this, rootView);
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            movie = bundle.getParcelable("movie");
+        }
+
+        gajelas.setText("Hai saya ulong :D " + movie.getName() + String.valueOf(movie.getId()));
+        full_url = url + movieDetail + movie.getId() + "/videos?" + api_key;
+        JsonObjectRequest getMovieDetail = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+            System.out.println(String.valueOf(response));
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+
+        Volley.newRequestQueue(getContext()).add(getMovieDetail);
+
+        Picasso.with(fragment_detail.this.getActivity()).load(movie.getBackground()).into(ivBackImage);
+        Picasso.with(fragment_detail.this.getActivity()).load(movie.getImage()).into(ivPrimary);
+        txTitleMovie.setText(movie.getName());
+        txOverviewMovie.setText(movie.getDetail());
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
             mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
         }
     }
 

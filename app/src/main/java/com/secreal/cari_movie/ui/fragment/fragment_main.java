@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -62,8 +63,6 @@ public class fragment_main extends Fragment {
 
     JsonObjectRequest getAPIRequest;
     List<Movie> movieList = new ArrayList<Movie>();
-    private String token = null;
-    private String session = null;
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894";
     private String url = "https://api.themoviedb.org/3";
     private String full_url = null;
@@ -116,6 +115,16 @@ public class fragment_main extends Fragment {
         gdMain.setAdapter(adapterMovie);
         full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
 
+        gdMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Bundle args = new Bundle();
+                args.putParcelable("movie", movieList.get(position));
+                fragment_detail fragment = new fragment_detail();
+                fragment.setArguments(args);
+                fragment_main.this.getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).addToBackStack(null).commit();
+            }
+        });
         ivCol1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -156,7 +165,15 @@ public class fragment_main extends Fragment {
                         Movie movie = new Movie();
                         JSONObject result = resultsJA.getJSONObject(i);
                         String image = result.getString("poster_path");
+                        String background = result.getString("backdrop_path");
+                        long id = result.getLong("id");
+                        String name = result.getString("original_title");
+                        String overview = result.getString("overview");
+                        movie.setId(id);
+                        movie.setName(name);
                         movie.setImage(imageUrl+image);
+                        movie.setBackground(imageUrl+background);
+                        movie.setDetail(overview);
                         movieList.add(movie);
                         adapterMovie.notifyDataSetChanged();
                     }
