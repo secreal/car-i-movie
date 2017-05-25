@@ -12,12 +12,14 @@ import de.greenrobot.dao.internal.DaoConfig;
 import com.secreal.cari_movie.Dao.Movie;
 import com.secreal.cari_movie.Dao.Rating;
 import com.secreal.cari_movie.Dao.Favorite;
+import com.secreal.cari_movie.Dao.Bookmark;
 import com.secreal.cari_movie.Dao.User;
 import com.secreal.cari_movie.Dao.Recent;
 
 import com.secreal.cari_movie.Dao.MovieDao;
 import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.Dao.FavoriteDao;
+import com.secreal.cari_movie.Dao.BookmarkDao;
 import com.secreal.cari_movie.Dao.UserDao;
 import com.secreal.cari_movie.Dao.RecentDao;
 
@@ -33,12 +35,14 @@ public class DaoSession extends AbstractDaoSession {
     private final DaoConfig movieDaoConfig;
     private final DaoConfig ratingDaoConfig;
     private final DaoConfig favoriteDaoConfig;
+    private final DaoConfig bookmarkDaoConfig;
     private final DaoConfig userDaoConfig;
     private final DaoConfig recentDaoConfig;
 
     private final MovieDao movieDao;
     private final RatingDao ratingDao;
     private final FavoriteDao favoriteDao;
+    private final BookmarkDao bookmarkDao;
     private final UserDao userDao;
     private final RecentDao recentDao;
 
@@ -55,6 +59,9 @@ public class DaoSession extends AbstractDaoSession {
         favoriteDaoConfig = daoConfigMap.get(FavoriteDao.class).clone();
         favoriteDaoConfig.initIdentityScope(type);
 
+        bookmarkDaoConfig = daoConfigMap.get(BookmarkDao.class).clone();
+        bookmarkDaoConfig.initIdentityScope(type);
+
         userDaoConfig = daoConfigMap.get(UserDao.class).clone();
         userDaoConfig.initIdentityScope(type);
 
@@ -64,12 +71,14 @@ public class DaoSession extends AbstractDaoSession {
         movieDao = new MovieDao(movieDaoConfig, this);
         ratingDao = new RatingDao(ratingDaoConfig, this);
         favoriteDao = new FavoriteDao(favoriteDaoConfig, this);
+        bookmarkDao = new BookmarkDao(bookmarkDaoConfig, this);
         userDao = new UserDao(userDaoConfig, this);
         recentDao = new RecentDao(recentDaoConfig, this);
 
         registerDao(Movie.class, movieDao);
         registerDao(Rating.class, ratingDao);
         registerDao(Favorite.class, favoriteDao);
+        registerDao(Bookmark.class, bookmarkDao);
         registerDao(User.class, userDao);
         registerDao(Recent.class, recentDao);
     }
@@ -78,6 +87,7 @@ public class DaoSession extends AbstractDaoSession {
         movieDaoConfig.getIdentityScope().clear();
         ratingDaoConfig.getIdentityScope().clear();
         favoriteDaoConfig.getIdentityScope().clear();
+        bookmarkDaoConfig.getIdentityScope().clear();
         userDaoConfig.getIdentityScope().clear();
         recentDaoConfig.getIdentityScope().clear();
     }
@@ -92,6 +102,10 @@ public class DaoSession extends AbstractDaoSession {
 
     public FavoriteDao getFavoriteDao() {
         return favoriteDao;
+    }
+
+    public BookmarkDao getBookmarkDao() {
+        return bookmarkDao;
     }
 
     public UserDao getUserDao() {

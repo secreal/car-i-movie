@@ -11,6 +11,7 @@ import de.greenrobot.dao.identityscope.IdentityScopeType;
 import com.secreal.cari_movie.Dao.MovieDao;
 import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.Dao.FavoriteDao;
+import com.secreal.cari_movie.Dao.BookmarkDao;
 import com.secreal.cari_movie.Dao.UserDao;
 import com.secreal.cari_movie.Dao.RecentDao;
 
@@ -26,6 +27,7 @@ public class DaoMaster extends AbstractDaoMaster {
         MovieDao.createTable(db, ifNotExists);
         RatingDao.createTable(db, ifNotExists);
         FavoriteDao.createTable(db, ifNotExists);
+        BookmarkDao.createTable(db, ifNotExists);
         UserDao.createTable(db, ifNotExists);
         RecentDao.createTable(db, ifNotExists);
     }
@@ -35,6 +37,7 @@ public class DaoMaster extends AbstractDaoMaster {
         MovieDao.dropTable(db, ifExists);
         RatingDao.dropTable(db, ifExists);
         FavoriteDao.dropTable(db, ifExists);
+        BookmarkDao.dropTable(db, ifExists);
         UserDao.dropTable(db, ifExists);
         RecentDao.dropTable(db, ifExists);
     }
@@ -71,6 +74,7 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(MovieDao.class);
         registerDaoClass(RatingDao.class);
         registerDaoClass(FavoriteDao.class);
+        registerDaoClass(BookmarkDao.class);
         registerDaoClass(UserDao.class);
         registerDaoClass(RecentDao.class);
     }

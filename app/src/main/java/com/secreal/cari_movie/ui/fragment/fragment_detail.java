@@ -16,6 +16,8 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.secreal.cari_movie.Dao.Bookmark;
+import com.secreal.cari_movie.Dao.BookmarkDao;
 import com.secreal.cari_movie.Dao.DaoSession;
 import com.secreal.cari_movie.Dao.Favorite;
 import com.secreal.cari_movie.Dao.FavoriteDao;
@@ -55,12 +57,13 @@ public class fragment_detail extends Fragment {
     DaoSession daoSession;
     RatingDao ratingDao;
     FavoriteDao favoriteDao;
+    Favorite favorite;
+    BookmarkDao bookmarkDao;
+    Bookmark bookmark;
     Movie movie;
     Float rating = 0.0f;
-    Favorite favorite;
     String userId;
     List<Rating> lRating = new ArrayList<Rating>();
-    @BindView(R.id.gajelas) TextView gajelas;
     @BindView(R.id.txTitleMovie) TextView txTitleMovie;
     @BindView(R.id.txMovieYear) TextView txMovieYear;
     @BindView(R.id.txRating) TextView txRating;
@@ -69,6 +72,7 @@ public class fragment_detail extends Fragment {
     @BindView(R.id.ivBackImage) ImageView ivBackImage;
     @BindView(R.id.ivPrimary) ImageView ivPrimary;
     @BindView(R.id.ivFav) ImageView ivFav;
+    @BindView(R.id.ivBook) ImageView ivBook;
     @BindView(R.id.fcRate) FitChart fcRate;
 
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894&language=en-US";
@@ -118,6 +122,7 @@ public class fragment_detail extends Fragment {
         daoSession = new CariMovieContext().getDaoSession(fragment_detail.this.getActivity());
         ratingDao = daoSession.getRatingDao();
         favoriteDao = daoSession.getFavoriteDao();
+        bookmarkDao = daoSession.getBookmarkDao();
 
         userId = "0";
         Bundle bundle = this.getArguments();
@@ -125,7 +130,6 @@ public class fragment_detail extends Fragment {
             movie = bundle.getParcelable("movie");
         }
 
-        gajelas.setText("Hai saya ulong :D " + movie.getName() + String.valueOf(movie.getId()));
         full_url = url + movieDetail + movie.getId() + "/videos?" + api_key;
         JsonObjectRequest getMovieDetail = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
             @Override
@@ -153,6 +157,7 @@ public class fragment_detail extends Fragment {
         }
         rating /= i;
         favorite = favoriteDao.queryBuilder().where(FavoriteDao.Properties.IdUser.eq(userId)).where(FavoriteDao.Properties.IdMovie.eq(movie.getId())).unique();
+        bookmark = bookmarkDao.queryBuilder().where(BookmarkDao.Properties.IdUser.eq(userId)).where(BookmarkDao.Properties.IdMovie.eq(movie.getId())).unique();
         fcRate.setMaxValue(10);
         fcRate.setMinValue(0);
         fcRate.setValue(rating);
@@ -190,6 +195,37 @@ public class fragment_detail extends Fragment {
         });
 
         txMovieYear.setText("(" + movie.getTahun() + ")");
+        if(bookmark != null){
+            if(bookmark.getMark() == 1){
+                Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.bookyes).into(ivBook);
+            }
+        }
+        else
+        {
+            Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.booknot).into(ivBook);
+        }
+        ivBook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                bookmark = bookmarkDao.queryBuilder().where(BookmarkDao.Properties.IdUser.eq(userId)).where(BookmarkDao.Properties.IdMovie.eq(movie.getId())).unique();
+                if(bookmark == null)
+                {
+                    bookmark = new Bookmark();
+                    bookmark.setIdUser(userId);
+                    bookmark.setIdMovie(movie.getId());
+                    bookmark.setMark(1);
+                    bookmarkDao.insertOrReplace(bookmark);
+                    Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.bookyes).into(ivBook);
+                    Toast.makeText(fragment_detail.this.getActivity(), "menambahkan watchlist", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    bookmarkDao.delete(bookmark);
+                    Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.booknot).into(ivBook);
+                    Toast.makeText(fragment_detail.this.getActivity(), "menghapus dari watchlist", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         return rootView;
     }
 

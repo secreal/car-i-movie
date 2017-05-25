@@ -40,4 +40,5 @@ dependencies {
     compile 'com.txusballesteros:FitChart:1.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.6.0'
     compile 'com.facebook.stetho:stetho:1.4.1'
+    compile 'org.apmem.tools:layouts:1.10@aar'
 }

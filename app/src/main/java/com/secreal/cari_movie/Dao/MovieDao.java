@@ -27,11 +27,12 @@ public class MovieDao extends AbstractDao<Movie, Long> {
         public final static Property Name = new Property(1, String.class, "name", false, "NAME");
         public final static Property Detail = new Property(2, String.class, "Detail", false, "DETAIL");
         public final static Property Image = new Property(3, String.class, "image", false, "IMAGE");
-        public final static Property Umur = new Property(4, String.class, "umur", false, "UMUR");
-        public final static Property Trailer1 = new Property(5, String.class, "trailer1", false, "TRAILER1");
-        public final static Property Trailer2 = new Property(6, String.class, "trailer2", false, "TRAILER2");
-        public final static Property Tahun = new Property(7, int.class, "tahun", false, "TAHUN");
-        public final static Property Durasi = new Property(8, int.class, "durasi", false, "DURASI");
+        public final static Property Background = new Property(4, String.class, "background", false, "BACKGROUND");
+        public final static Property Umur = new Property(5, String.class, "umur", false, "UMUR");
+        public final static Property Trailer1 = new Property(6, String.class, "trailer1", false, "TRAILER1");
+        public final static Property Trailer2 = new Property(7, String.class, "trailer2", false, "TRAILER2");
+        public final static Property Tahun = new Property(8, int.class, "tahun", false, "TAHUN");
+        public final static Property Durasi = new Property(9, int.class, "durasi", false, "DURASI");
     };
 
     private DaoSession daoSession;
@@ -54,11 +55,12 @@ public class MovieDao extends AbstractDao<Movie, Long> {
                 "'NAME' TEXT NOT NULL ," + // 1: name
                 "'DETAIL' TEXT NOT NULL ," + // 2: Detail
                 "'IMAGE' TEXT NOT NULL ," + // 3: image
-                "'UMUR' TEXT NOT NULL ," + // 4: umur
-                "'TRAILER1' TEXT NOT NULL ," + // 5: trailer1
-                "'TRAILER2' TEXT," + // 6: trailer2
-                "'TAHUN' INTEGER NOT NULL ," + // 7: tahun
-                "'DURASI' INTEGER NOT NULL );"); // 8: durasi
+                "'BACKGROUND' TEXT NOT NULL ," + // 4: background
+                "'UMUR' TEXT NOT NULL ," + // 5: umur
+                "'TRAILER1' TEXT," + // 6: trailer1
+                "'TRAILER2' TEXT," + // 7: trailer2
+                "'TAHUN' INTEGER NOT NULL ," + // 8: tahun
+                "'DURASI' INTEGER NOT NULL );"); // 9: durasi
     }
 
     /** Drops the underlying database table. */
@@ -79,15 +81,20 @@ public class MovieDao extends AbstractDao<Movie, Long> {
         stmt.bindString(2, entity.getName());
         stmt.bindString(3, entity.getDetail());
         stmt.bindString(4, entity.getImage());
-        stmt.bindString(5, entity.getUmur());
-        stmt.bindString(6, entity.getTrailer1());
+        stmt.bindString(5, entity.getBackground());
+        stmt.bindString(6, entity.getUmur());
+ 
+        String trailer1 = entity.getTrailer1();
+        if (trailer1 != null) {
+            stmt.bindString(7, trailer1);
+        }
  
         String trailer2 = entity.getTrailer2();
         if (trailer2 != null) {
-            stmt.bindString(7, trailer2);
+            stmt.bindString(8, trailer2);
         }
-        stmt.bindLong(8, entity.getTahun());
-        stmt.bindLong(9, entity.getDurasi());
+        stmt.bindLong(9, entity.getTahun());
+        stmt.bindLong(10, entity.getDurasi());
     }
 
     @Override
@@ -110,11 +117,12 @@ public class MovieDao extends AbstractDao<Movie, Long> {
             cursor.getString(offset + 1), // name
             cursor.getString(offset + 2), // Detail
             cursor.getString(offset + 3), // image
-            cursor.getString(offset + 4), // umur
-            cursor.getString(offset + 5), // trailer1
-            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // trailer2
-            cursor.getInt(offset + 7), // tahun
-            cursor.getInt(offset + 8) // durasi
+            cursor.getString(offset + 4), // background
+            cursor.getString(offset + 5), // umur
+            cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6), // trailer1
+            cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7), // trailer2
+            cursor.getInt(offset + 8), // tahun
+            cursor.getInt(offset + 9) // durasi
         );
         return entity;
     }
@@ -126,11 +134,12 @@ public class MovieDao extends AbstractDao<Movie, Long> {
         entity.setName(cursor.getString(offset + 1));
         entity.setDetail(cursor.getString(offset + 2));
         entity.setImage(cursor.getString(offset + 3));
-        entity.setUmur(cursor.getString(offset + 4));
-        entity.setTrailer1(cursor.getString(offset + 5));
-        entity.setTrailer2(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
-        entity.setTahun(cursor.getInt(offset + 7));
-        entity.setDurasi(cursor.getInt(offset + 8));
+        entity.setBackground(cursor.getString(offset + 4));
+        entity.setUmur(cursor.getString(offset + 5));
+        entity.setTrailer1(cursor.isNull(offset + 6) ? null : cursor.getString(offset + 6));
+        entity.setTrailer2(cursor.isNull(offset + 7) ? null : cursor.getString(offset + 7));
+        entity.setTahun(cursor.getInt(offset + 8));
+        entity.setDurasi(cursor.getInt(offset + 9));
      }
     
     /** @inheritdoc */

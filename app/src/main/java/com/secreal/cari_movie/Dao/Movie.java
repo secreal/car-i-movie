@@ -26,21 +26,13 @@ public class Movie implements Serializable, Parcelable {
     /** Not-null value. */
     private String image;
     /** Not-null value. */
-    private String umur;
+    private String background;
     /** Not-null value. */
+    private String umur;
     private String trailer1;
     private String trailer2;
     private int tahun;
     private int durasi;
-    private String background;
-
-    public String getBackground() {
-        return background;
-    }
-
-    public void setBackground(String background) {
-        this.background = background;
-    }
 
     /** Used to resolve relations */
     private transient DaoSession daoSession;
@@ -59,11 +51,12 @@ public class Movie implements Serializable, Parcelable {
         this.id = id;
     }
 
-    public Movie(Long id, String name, String Detail, String image, String umur, String trailer1, String trailer2, int tahun, int durasi) {
+    public Movie(Long id, String name, String Detail, String image, String background, String umur, String trailer1, String trailer2, int tahun, int durasi) {
         this.id = id;
         this.name = name;
         this.Detail = Detail;
         this.image = image;
+        this.background = background;
         this.umur = umur;
         this.trailer1 = trailer1;
         this.trailer2 = trailer2;
@@ -116,6 +109,16 @@ public class Movie implements Serializable, Parcelable {
     }
 
     /** Not-null value. */
+    public String getBackground() {
+        return background;
+    }
+
+    /** Not-null value; ensure this value is available before it is saved to the database. */
+    public void setBackground(String background) {
+        this.background = background;
+    }
+
+    /** Not-null value. */
     public String getUmur() {
         return umur;
     }
@@ -125,12 +128,10 @@ public class Movie implements Serializable, Parcelable {
         this.umur = umur;
     }
 
-    /** Not-null value. */
     public String getTrailer1() {
         return trailer1;
     }
 
-    /** Not-null value; ensure this value is available before it is saved to the database. */
     public void setTrailer1(String trailer1) {
         this.trailer1 = trailer1;
     }
