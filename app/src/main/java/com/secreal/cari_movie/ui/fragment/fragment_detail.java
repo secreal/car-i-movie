@@ -1,5 +1,6 @@
 package com.secreal.cari_movie.ui.fragment;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,9 +28,12 @@ import com.secreal.cari_movie.Dao.Rating;
 import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.R;
 import com.secreal.cari_movie.extra.CariMovieContext;
+import com.secreal.cari_movie.models.Trailer;
 import com.squareup.picasso.Picasso;
 import com.txusballesteros.widgets.FitChart;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -63,16 +68,23 @@ public class fragment_detail extends Fragment {
     Movie movie;
     Float rating = 0.0f;
     String userId;
+    Trailer trailer1, trailer2;
+
     List<Rating> lRating = new ArrayList<Rating>();
     @BindView(R.id.txTitleMovie) TextView txTitleMovie;
     @BindView(R.id.txMovieYear) TextView txMovieYear;
     @BindView(R.id.txRating) TextView txRating;
     @BindView(R.id.txOverviewMovie) TextView txOverviewMovie;
+    @BindView(R.id.txTrailers) TextView txTrailers;
+    @BindView(R.id.txTrailer1) TextView txTrailer1;
+    @BindView(R.id.txTrailer2) TextView txTrailer2;
     @BindView(R.id.rlBackground) FrameLayout rlBackground;
     @BindView(R.id.ivBackImage) ImageView ivBackImage;
     @BindView(R.id.ivPrimary) ImageView ivPrimary;
     @BindView(R.id.ivFav) ImageView ivFav;
     @BindView(R.id.ivBook) ImageView ivBook;
+    @BindView(R.id.lltrailer1) LinearLayout lltrailer1;
+    @BindView(R.id.lltrailer2) LinearLayout lltrailer2;
     @BindView(R.id.fcRate) FitChart fcRate;
 
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894&language=en-US";
@@ -131,10 +143,46 @@ public class fragment_detail extends Fragment {
         }
 
         full_url = url + movieDetail + movie.getId() + "/videos?" + api_key;
-        JsonObjectRequest getMovieDetail = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
+        JsonObjectRequest getTrailers = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-            System.out.println(String.valueOf(response));
+                JSONObject jsoTrailer1 = null, jsoTrailer2 = null; 
+                try {
+                    JSONArray results = response.getJSONArray("results");
+                    System.out.println(response.toString());
+                    if(results.length() == 1) {
+                        jsoTrailer1 = results.getJSONObject(0);
+                    }
+                    else if(results.length() == 2) {
+                        jsoTrailer1 = results.getJSONObject(0);
+                        jsoTrailer2 = results.getJSONObject(1);
+                    }
+                    else txTrailers.setText("No Trailer");
+                    if(jsoTrailer1 != null)
+                    {
+                        if(jsoTrailer1.getString("site").equals("YouTube"))
+                        {
+                            System.out.println("jsotrailer1: " + jsoTrailer1.toString());
+                            trailer1 = new Trailer(jsoTrailer1.getString("key"), jsoTrailer1.getString("site"), jsoTrailer1.getString("name"));
+                            lltrailer1.setVisibility(View.VISIBLE);
+                            txTrailer1.setText(trailer1.getName());
+                        }
+                    }
+                    if(jsoTrailer2 != null)
+                    {
+                        if(jsoTrailer2.getString("site").equals("YouTube"))
+                        {
+                            System.out.println("jsotrailer2: " + jsoTrailer2.toString());
+                            trailer2 = new Trailer(jsoTrailer2.getString("key"), jsoTrailer2.getString("site"), jsoTrailer2.getString("name"));
+                            lltrailer2.setVisibility(View.VISIBLE);
+                            txTrailer2.setText(trailer2.getName());
+                        }
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
             }
         }, new Response.ErrorListener() {
             @Override
@@ -143,7 +191,7 @@ public class fragment_detail extends Fragment {
             }
         });
 
-        Volley.newRequestQueue(getContext()).add(getMovieDetail);
+        Volley.newRequestQueue(getContext()).add(getTrailers);
 
         Picasso.with(fragment_detail.this.getActivity()).load(movie.getBackground()).into(ivBackImage);
         Picasso.with(fragment_detail.this.getActivity()).load(movie.getImage()).into(ivPrimary);
@@ -226,6 +274,19 @@ public class fragment_detail extends Fragment {
                 }
             }
         });
+        lltrailer1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + trailer1.getKey())));
+            }
+        });
+        lltrailer2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + trailer2.getKey())));
+            }
+        });
+
         return rootView;
     }
 
