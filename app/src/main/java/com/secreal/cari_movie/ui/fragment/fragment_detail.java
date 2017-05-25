@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -16,6 +17,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.secreal.cari_movie.Dao.DaoSession;
+import com.secreal.cari_movie.Dao.Favorite;
+import com.secreal.cari_movie.Dao.FavoriteDao;
 import com.secreal.cari_movie.Dao.Movie;
 import com.secreal.cari_movie.Dao.Rating;
 import com.secreal.cari_movie.Dao.RatingDao;
@@ -51,16 +54,21 @@ public class fragment_detail extends Fragment {
     private String mParam2;
     DaoSession daoSession;
     RatingDao ratingDao;
+    FavoriteDao favoriteDao;
     Movie movie;
     Float rating = 0.0f;
+    Favorite favorite;
+    String userId;
     List<Rating> lRating = new ArrayList<Rating>();
     @BindView(R.id.gajelas) TextView gajelas;
     @BindView(R.id.txTitleMovie) TextView txTitleMovie;
+    @BindView(R.id.txMovieYear) TextView txMovieYear;
     @BindView(R.id.txRating) TextView txRating;
     @BindView(R.id.txOverviewMovie) TextView txOverviewMovie;
     @BindView(R.id.rlBackground) FrameLayout rlBackground;
     @BindView(R.id.ivBackImage) ImageView ivBackImage;
     @BindView(R.id.ivPrimary) ImageView ivPrimary;
+    @BindView(R.id.ivFav) ImageView ivFav;
     @BindView(R.id.fcRate) FitChart fcRate;
 
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894&language=en-US";
@@ -109,7 +117,9 @@ public class fragment_detail extends Fragment {
         ButterKnife.bind(this, rootView);
         daoSession = new CariMovieContext().getDaoSession(fragment_detail.this.getActivity());
         ratingDao = daoSession.getRatingDao();
+        favoriteDao = daoSession.getFavoriteDao();
 
+        userId = "0";
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             movie = bundle.getParcelable("movie");
@@ -142,11 +152,44 @@ public class fragment_detail extends Fragment {
             rating += apart.getRating();
         }
         rating /= i;
+        favorite = favoriteDao.queryBuilder().where(FavoriteDao.Properties.IdUser.eq(userId)).where(FavoriteDao.Properties.IdMovie.eq(movie.getId())).unique();
         fcRate.setMaxValue(10);
         fcRate.setMinValue(0);
         fcRate.setValue(rating);
         txRating.setText(String.valueOf((int) (rating * 10)) + "%");
+        if(favorite != null){
+            if(favorite.getMark() == 1){
+                Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.favyes).into(ivFav);
+            }
+        }
+        else
+        {
+            Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.favnot).into(ivFav);
+        }
+        ivFav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                favorite = favoriteDao.queryBuilder().where(FavoriteDao.Properties.IdUser.eq(userId)).where(FavoriteDao.Properties.IdMovie.eq(movie.getId())).unique();
+                if(favorite == null)
+                {
+                    favorite = new Favorite();
+                    favorite.setIdUser(userId);
+                    favorite.setIdMovie(movie.getId());
+                    favorite.setMark(1);
+                    favoriteDao.insertOrReplace(favorite);
+                    Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.favyes).into(ivFav);
+                    Toast.makeText(fragment_detail.this.getActivity(), "menambahkan favorite", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    favoriteDao.delete(favorite);
+                    Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.favnot).into(ivFav);
+                    Toast.makeText(fragment_detail.this.getActivity(), "menghapus favorite", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
 
+        txMovieYear.setText("(" + movie.getTahun() + ")");
         return rootView;
     }
 

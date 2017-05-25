@@ -178,12 +178,14 @@ public class fragment_main extends Fragment {
                         String name = result.getString("original_title");
                         String overview = result.getString("overview");
                         Float jRating = Float.valueOf((float) result.getDouble("vote_average"));
-
+                        int year = Integer.parseInt(result.getString("release_date").substring(0, 4));
                         Rating rating = new Rating();
                         rating.setIdMovie(id);
                         rating.setIdUser("0");
                         rating.setRating(jRating);
                         ratingDao.insertOrReplace(rating);
+
+                        movie.setTahun(year);
                         movie.setId(id);
                         movie.setName(name);
                         movie.setImage(imageUrl+image);
