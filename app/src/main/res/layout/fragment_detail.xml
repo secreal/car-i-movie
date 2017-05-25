@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rlBackground"
     android:layout_width="match_parent"
@@ -21,17 +22,55 @@
     <!-- TODO: Update blank fragment layout -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:padding="8dp"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="8dp">
 
         <TextView
             android:id="@+id/txTitleMovie"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:textColor="@android:color/white"
             android:textSize="22sp"
             android:textStyle="bold" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:layout_width="41dp"
+                android:layout_height="41dp">
+
+                <com.txusballesteros.widgets.FitChart
+                    android:id="@+id/fcRate"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    app:animationMode="overdraw"
+                    app:backStrokeColor="#384138"
+                    app:strokeSize="5dp"
+                    app:valueStrokeColor="#63af74" />
+
+                <TextView
+                    android:id="@+id/txRating"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
+            </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:text="User \nScore"
+                android:layout_marginTop="2dp"
+                android:layout_marginLeft="8dp"
+                android:textStyle="bold"
+                android:textColor="@android:color/white"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -47,9 +86,9 @@
 
                 <ImageView
                     android:id="@+id/ivPrimary"
-                    android:layout_gravity="top"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent"
+                    android:layout_gravity="top" />
 
             </LinearLayout>
 
@@ -63,9 +102,9 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="Overview"
                     android:textColor="@android:color/white"
                     android:textSize="16sp"
-                    android:text="Overview"
                     android:textStyle="bold" />
 
                 <TextView

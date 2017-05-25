@@ -16,9 +16,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.secreal.cari_movie.Dao.DaoSession;
 import com.secreal.cari_movie.Dao.Movie;
+import com.secreal.cari_movie.Dao.Rating;
+import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.R;
 import com.secreal.cari_movie.adapters.AdapterMovie;
+import com.secreal.cari_movie.extra.CariMovieContext;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,6 +67,8 @@ public class fragment_main extends Fragment {
 
     JsonObjectRequest getAPIRequest;
     List<Movie> movieList = new ArrayList<Movie>();
+    DaoSession daoSession;
+    RatingDao ratingDao;
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894";
     private String url = "https://api.themoviedb.org/3";
     private String full_url = null;
@@ -110,6 +116,8 @@ public class fragment_main extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(fragment_main, container, false);
         ButterKnife.bind(this, rootView);
+        daoSession = new CariMovieContext().getDaoSession(fragment_main.this.getActivity());
+        ratingDao = daoSession.getRatingDao();
         page = 1;
         adapterMovie = new AdapterMovie(fragment_main.this.getActivity(), movieList);
         gdMain.setAdapter(adapterMovie);
@@ -169,6 +177,13 @@ public class fragment_main extends Fragment {
                         long id = result.getLong("id");
                         String name = result.getString("original_title");
                         String overview = result.getString("overview");
+                        Float jRating = Float.valueOf((float) result.getDouble("vote_average"));
+
+                        Rating rating = new Rating();
+                        rating.setIdMovie(id);
+                        rating.setIdUser("0");
+                        rating.setRating(jRating);
+                        ratingDao.insertOrReplace(rating);
                         movie.setId(id);
                         movie.setName(name);
                         movie.setImage(imageUrl+image);

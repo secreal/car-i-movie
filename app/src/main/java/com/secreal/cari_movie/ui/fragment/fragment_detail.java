@@ -15,11 +15,19 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.secreal.cari_movie.Dao.DaoSession;
 import com.secreal.cari_movie.Dao.Movie;
+import com.secreal.cari_movie.Dao.Rating;
+import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.R;
+import com.secreal.cari_movie.extra.CariMovieContext;
 import com.squareup.picasso.Picasso;
+import com.txusballesteros.widgets.FitChart;
 
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,13 +49,19 @@ public class fragment_detail extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    DaoSession daoSession;
+    RatingDao ratingDao;
     Movie movie;
+    Float rating = 0.0f;
+    List<Rating> lRating = new ArrayList<Rating>();
     @BindView(R.id.gajelas) TextView gajelas;
     @BindView(R.id.txTitleMovie) TextView txTitleMovie;
+    @BindView(R.id.txRating) TextView txRating;
     @BindView(R.id.txOverviewMovie) TextView txOverviewMovie;
     @BindView(R.id.rlBackground) FrameLayout rlBackground;
     @BindView(R.id.ivBackImage) ImageView ivBackImage;
     @BindView(R.id.ivPrimary) ImageView ivPrimary;
+    @BindView(R.id.fcRate) FitChart fcRate;
 
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894&language=en-US";
     private String url = "https://api.themoviedb.org/3";
@@ -93,6 +107,8 @@ public class fragment_detail extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
         ButterKnife.bind(this, rootView);
+        daoSession = new CariMovieContext().getDaoSession(fragment_detail.this.getActivity());
+        ratingDao = daoSession.getRatingDao();
 
         Bundle bundle = this.getArguments();
         if (bundle != null) {
@@ -119,6 +135,18 @@ public class fragment_detail extends Fragment {
         Picasso.with(fragment_detail.this.getActivity()).load(movie.getImage()).into(ivPrimary);
         txTitleMovie.setText(movie.getName());
         txOverviewMovie.setText(movie.getDetail());
+        lRating = ratingDao.queryBuilder().where(RatingDao.Properties.IdMovie.eq(movie.getId())).list();
+        int i = 0;
+        for(Rating apart : lRating){
+            i++;
+            rating += apart.getRating();
+        }
+        rating /= i;
+        fcRate.setMaxValue(10);
+        fcRate.setMinValue(0);
+        fcRate.setValue(rating);
+        txRating.setText(String.valueOf((int) (rating * 10)) + "%");
+
         return rootView;
     }
 
