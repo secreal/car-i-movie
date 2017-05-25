@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -28,7 +29,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -59,6 +63,7 @@ public class fragment_main extends Fragment {
     @BindView(R.id.gdMain) GridView gdMain;
     @BindView(R.id.txLoadMore) TextView txLoadMore;
     @BindView(R.id.txTitle) TextView txTitle;
+    @BindView(R.id.svMovie) SearchView svMovie;
     @BindView(R.id.ivCol1) ImageView ivCol1;
     @BindView(R.id.ivCol2) ImageView ivCol2;
     @BindView(R.id.ivCol3) ImageView ivCol3;
@@ -77,6 +82,7 @@ public class fragment_main extends Fragment {
     private int page;
     private int totalMovie;
     private OnFragmentInteractionListener mListener;
+    private String list;
 
     AdapterMovie adapterMovie;
     public fragment_main() {
@@ -121,7 +127,29 @@ public class fragment_main extends Fragment {
         page = 1;
         adapterMovie = new AdapterMovie(fragment_main.this.getActivity(), movieList);
         gdMain.setAdapter(adapterMovie);
-        full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
+
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            list = bundle.getString("list");
+        }
+
+        if(list.equals("month"))
+        {
+            Date date = new Date();
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            c.add(Calendar.DATE, - 30);
+            Date end = c.getTime();
+            String now = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+            String weekBefore = new SimpleDateFormat("yyyy-MM-dd").format(end);
+
+            primaryRelease = "/discover/movie?primary_release_date.gte=" + weekBefore + "&primary_release_date.lte=" + now;
+            full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
+        }
+        else
+        {
+            full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
+        }
 
         gdMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -166,38 +194,7 @@ public class fragment_main extends Fragment {
         getAPIRequest = new JsonObjectRequest(Request.Method.GET, this.full_url, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                try {
-                    JSONArray resultsJA = response.getJSONArray("results");
-                    totalMovie = response.getInt("total_results");
-                    for(int i = 0; i < 20; ++i){
-                        Movie movie = new Movie();
-                        JSONObject result = resultsJA.getJSONObject(i);
-                        String image = result.getString("poster_path");
-                        String background = result.getString("backdrop_path");
-                        long id = result.getLong("id");
-                        String name = result.getString("original_title");
-                        String overview = result.getString("overview");
-                        Float jRating = Float.valueOf((float) result.getDouble("vote_average"));
-                        int year = Integer.parseInt(result.getString("release_date").substring(0, 4));
-                        Rating rating = new Rating();
-                        rating.setIdMovie(id);
-                        rating.setIdUser("0");
-                        rating.setRating(jRating);
-                        ratingDao.insertOrReplace(rating);
-
-                        movie.setTahun(year);
-                        movie.setId(id);
-                        movie.setName(name);
-                        movie.setImage(imageUrl+image);
-                        movie.setBackground(imageUrl+background);
-                        movie.setDetail(overview);
-                        movieList.add(movie);
-                        adapterMovie.notifyDataSetChanged();
-                    }
-                    txTitle.setText("Car I-Movie, " + totalMovie + " Movies");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                fillMovie(response);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -210,6 +207,7 @@ public class fragment_main extends Fragment {
         txLoadMore.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(page == 0) page++;
                 page++;
                 System.out.println("Page = "+ page);
                 full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
@@ -218,20 +216,7 @@ public class fragment_main extends Fragment {
                 getAPIRequest = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        try {
-                            JSONArray resultsJA = response.getJSONArray("results");
-                            totalMovie = response.getInt("page");
-                            for(int i = 0; i < 20; ++i){
-                                Movie movie = new Movie();
-                                JSONObject result = resultsJA.getJSONObject(i);
-                                String image = result.getString("poster_path");
-                                movie.setImage(imageUrl+image);
-                                movieList.add(movie);
-                                adapterMovie.notifyDataSetChanged();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        fillMovie(response);
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -239,8 +224,36 @@ public class fragment_main extends Fragment {
 
                     }
                 });
-                Volley.newRequestQueue(getContext()).add(getAPIRequest);            }
+                Volley.newRequestQueue(getContext()).add(getAPIRequest);
+            }
         });
+
+        SearchView.OnQueryTextListener searchListener = new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                full_url = "https://api.themoviedb.org/3/search/movie?api_key=3efb22326c5656140de23f7cca01c894&language=en-US&page=1&query=" + query;
+                movieList.clear();
+                getAPIRequest = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        fillMovie(response);
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+                Volley.newRequestQueue(getContext()).add(getAPIRequest);
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        };
+        svMovie.setOnQueryTextListener(searchListener);
         return rootView;
     }
 
@@ -270,5 +283,45 @@ public class fragment_main extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    private void fillMovie(JSONObject response) {
+        System.out.println("url link: " + full_url);
+        System.out.println("response: " + response.toString());
+        JSONArray resultsJA = null;
+        try {
+            resultsJA = response.getJSONArray("results");
+            totalMovie = response.getInt("total_results");
+            for (int i = 0; i < 20; ++i) {
+                Movie movie = new Movie();
+                JSONObject result = resultsJA.getJSONObject(i);
+                String image = result.getString("poster_path");
+                String background = result.getString("backdrop_path");
+                long id = result.getLong("id");
+                String name = result.getString("original_title");
+                String overview = result.getString("overview");
+                Float jRating = Float.valueOf((float) result.getDouble("vote_average"));
+                int year = 0;
+                if(!result.getString("release_date").equals("")) {
+                    year = Integer.parseInt(result.getString("release_date").substring(0, 4));
+                }
+                Rating rating = new Rating();
+                rating.setIdMovie(id);
+                rating.setIdUser("0");
+                rating.setRating(jRating);
+                ratingDao.insertOrReplace(rating);
+
+                movie.setTahun(year);
+                movie.setId(id);
+                movie.setName(name);
+                movie.setImage(imageUrl + image);
+                movie.setBackground(imageUrl + background);
+                movie.setDetail(overview);
+                movieList.add(movie);
+            }
+            adapterMovie.notifyDataSetChanged();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

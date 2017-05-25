@@ -242,7 +242,10 @@ public class fragment_detail extends Fragment {
             }
         });
 
-        txMovieYear.setText("(" + movie.getTahun() + ")");
+        if(movie.getTahun() != 0)
+            txMovieYear.setText("(" + movie.getTahun() + ")");
+        else
+            txMovieYear.setText("");
         if(bookmark != null){
             if(bookmark.getMark() == 1){
                 Picasso.with(fragment_detail.this.getActivity()).load(R.drawable.bookyes).into(ivBook);

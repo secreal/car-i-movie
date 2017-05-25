@@ -2,9 +2,8 @@ package com.secreal.cari_movie.ui.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -12,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.secreal.cari_movie.R;
 import com.secreal.cari_movie.ui.fragment.fragment_main;
@@ -44,7 +44,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        getSupportFragmentManager().beginTransaction().add(R.id.content_main, new fragment_main()).commit();
+        Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
+        args.putString("list", "month");
+        fragment.setArguments(args); getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
     }
 
     @Override
@@ -85,16 +87,22 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
+        if (id == R.id.nav_month) {
+            Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
+            args.putString("list", "month");
+            fragment.setArguments(args); getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
+        } else if (id == R.id.nav_popular) {
+            Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
+            args.putString("list", "popular");
+            fragment.setArguments(args); getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
+        } else if (id == R.id.nav_favorites) {
+            Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
+            args.putString("list", "favorites");
+            fragment.setArguments(args); getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
+        } else if (id == R.id.nav_bookmark) {
+            Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
+            args.putString("list", "bookmark");
+            fragment.setArguments(args); getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
         } else if (id == R.id.nav_send) {
 
         }

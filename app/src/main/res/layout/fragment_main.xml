@@ -7,11 +7,18 @@
     tools:context="com.secreal.cari_movie.ui.fragment.fragment_main">
 
     <!-- TODO: Update blank fragment layout -->
+    <SearchView
+        android:id="@+id/svMovie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </SearchView>
+
     <TextView
         android:id="@+id/txTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Car I-Movie, 999 Movies" />
+        android:text="Car I-Movie, 0 Movies" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -59,13 +66,16 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:numColumns="5"></GridView>
+        android:numColumns="3"></GridView>
 
     <TextView
         android:id="@+id/txLoadMore"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
+        android:padding="10dp"
+        android:textColor="@android:color/white"
+        android:background="@android:color/holo_blue_bright"
         android:text="Load more ..." />
 
 
