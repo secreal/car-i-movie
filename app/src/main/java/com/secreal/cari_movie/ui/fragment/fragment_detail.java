@@ -1,5 +1,6 @@
 package com.secreal.cari_movie.ui.fragment;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -7,6 +8,8 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.ortiz.touch.TouchImageView;
 import com.secreal.cari_movie.Dao.Bookmark;
 import com.secreal.cari_movie.Dao.BookmarkDao;
 import com.secreal.cari_movie.Dao.DaoSession;
@@ -330,6 +334,23 @@ public class fragment_detail extends Fragment {
             }
         });
 
+        ivPrimary.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Dialog settingsDialog = new Dialog(fragment_detail.this.getActivity());
+                settingsDialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+                View dialogView = fragment_detail.this.getActivity().getLayoutInflater().inflate(R.layout.image_layout , null);
+                TouchImageView ivDialog = (TouchImageView) dialogView.findViewById(R.id.ivDialog);
+                Picasso.with(fragment_detail.this.getActivity()).load(movie.getImage()).into(ivDialog);
+                settingsDialog.setContentView(dialogView);
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(settingsDialog.getWindow().getAttributes());
+                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                lp.height = WindowManager.LayoutParams.MATCH_PARENT;
+                settingsDialog.show();
+//                settingsDialog.getWindow().setAttributes(lp);
+            }
+        });
         return rootView;
     }
 

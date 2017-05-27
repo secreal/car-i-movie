@@ -41,4 +41,5 @@ dependencies {
     compile 'com.facebook.stetho:stetho:1.4.1'
     compile 'org.apmem.tools:layouts:1.10@aar'
     compile 'com.hedgehog.ratingbar:app:1.1.2'
+    compile 'com.github.ligi:touchimageview:2.1'
 }
