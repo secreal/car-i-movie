@@ -80,6 +80,7 @@ public class fragment_detail extends Fragment {
     @BindView(R.id.txTrailers) TextView txTrailers;
     @BindView(R.id.txTrailer1) TextView txTrailer1;
     @BindView(R.id.txTrailer2) TextView txTrailer2;
+    @BindView(R.id.txDurasi) TextView txDurasi;
     @BindView(R.id.rlBackground) FrameLayout rlBackground;
     @BindView(R.id.ivBackImage) ImageView ivBackImage;
     @BindView(R.id.ivPrimary) ImageView ivPrimary;
@@ -147,6 +148,27 @@ public class fragment_detail extends Fragment {
         }
 
         movieDao.insertOrReplace(movie);
+
+        JsonObjectRequest getDuration = new JsonObjectRequest(Request.Method.GET, "https://api.themoviedb.org/3/movie/" + movie.getId() + "?" + api_key, null, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    int durasi = response.getInt("runtime");
+                    int jam = durasi / 60 < 1 ? 0 : durasi / 60 ;
+                    int menit = durasi % 60;
+                    txDurasi.setText("Duration: \n" + jam + "h " + menit + "m");
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        Volley.newRequestQueue(getContext()).add(getDuration);
 
         full_url = url + movieDetail + movie.getId() + "/videos?" + api_key;
         JsonObjectRequest getTrailers = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {

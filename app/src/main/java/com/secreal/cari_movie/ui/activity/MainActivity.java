@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.secreal.cari_movie.R;
 import com.secreal.cari_movie.ui.fragment.fragment_main;
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Toast.makeText(this, "Created by Hendry Hendratno, IAK3 Intermediate, Fasilitator: Waviq Subkhi :D", Toast.LENGTH_LONG).show();
             return true;
         }
 
