@@ -83,6 +83,7 @@ public class fragment_detail extends Fragment {
     @BindView(R.id.rlBackground) FrameLayout rlBackground;
     @BindView(R.id.ivBackImage) ImageView ivBackImage;
     @BindView(R.id.ivPrimary) ImageView ivPrimary;
+    @BindView(R.id.ivShare) ImageView ivShare;
     @BindView(R.id.ivFav) ImageView ivFav;
     @BindView(R.id.ivBook) ImageView ivBook;
     @BindView(R.id.lltrailer1) LinearLayout lltrailer1;
@@ -292,6 +293,18 @@ public class fragment_detail extends Fragment {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/watch?v=" + trailer2.getKey())));
+            }
+        });
+
+        ivShare.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "https://www.themoviedb.org/movie/" + movie.getId());
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+
             }
         });
 

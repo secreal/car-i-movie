@@ -103,8 +103,6 @@ public class MainActivity extends AppCompatActivity
             Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
             args.putString("list", "bookmark");
             fragment.setArguments(args); getSupportFragmentManager().beginTransaction().replace(R.id.content_main, fragment).commit();
-        } else if (id == R.id.nav_send) {
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
