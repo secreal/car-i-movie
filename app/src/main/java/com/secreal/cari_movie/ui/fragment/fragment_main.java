@@ -1,5 +1,6 @@
 package com.secreal.cari_movie.ui.fragment;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -43,6 +44,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.content.Context.MODE_PRIVATE;
 import static com.secreal.cari_movie.R.layout.fragment_main;
 
 /**
@@ -146,6 +148,9 @@ public class fragment_main extends Fragment {
         adapterMovie = new AdapterMovie(fragment_main.this.getActivity(), movieList);
         gdMain.setAdapter(adapterMovie);
 
+        SharedPreferences prefs = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE);
+            gdMain.setNumColumns(prefs.getInt("size", 3));
+
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             list = bundle.getString("list");
@@ -227,30 +232,35 @@ public class fragment_main extends Fragment {
             @Override
             public void onClick(View v) {
                 gdMain.setNumColumns(1);
+                SharedPreferences.Editor editor = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE).edit(); editor.putInt("size", 1); editor.commit();
             }
         });
         ivCol2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gdMain.setNumColumns(2);
+                SharedPreferences.Editor editor = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE).edit(); editor.putInt("size", 2); editor.commit();
             }
         });
         ivCol3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gdMain.setNumColumns(3);
+                SharedPreferences.Editor editor = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE).edit(); editor.putInt("size", 3); editor.commit();
             }
         });
         ivCol4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gdMain.setNumColumns(4);
+                SharedPreferences.Editor editor = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE).edit(); editor.putInt("size", 4); editor.commit();
             }
         });
         ivCol5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 gdMain.setNumColumns(5);
+                SharedPreferences.Editor editor = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE).edit(); editor.putInt("size", 5); editor.commit();
             }
         });
 
