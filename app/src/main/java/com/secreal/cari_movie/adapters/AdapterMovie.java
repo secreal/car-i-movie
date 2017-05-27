@@ -75,7 +75,7 @@ public class AdapterMovie extends BaseAdapter {
         rowView = inflater.inflate(R.layout.grid_view_menu_master, null);
         holder.imageView1 = (ImageView) rowView.findViewById(R.id.btn_list_menu_master1);
         i++;
-        Picasso.with(context).load(result.get(position).getImage()).resize(200, 200).centerInside().into(holder.imageView1);
+        Picasso.with(context).load(result.get(position).getImage()).resize(512, 512).centerInside().into(holder.imageView1);
 
         return rowView;
     }

@@ -17,8 +17,13 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.secreal.cari_movie.Dao.Bookmark;
+import com.secreal.cari_movie.Dao.BookmarkDao;
 import com.secreal.cari_movie.Dao.DaoSession;
+import com.secreal.cari_movie.Dao.Favorite;
+import com.secreal.cari_movie.Dao.FavoriteDao;
 import com.secreal.cari_movie.Dao.Movie;
+import com.secreal.cari_movie.Dao.MovieDao;
 import com.secreal.cari_movie.Dao.Rating;
 import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.R;
@@ -74,6 +79,13 @@ public class fragment_main extends Fragment {
     List<Movie> movieList = new ArrayList<Movie>();
     DaoSession daoSession;
     RatingDao ratingDao;
+    MovieDao movieDao;
+    FavoriteDao favoriteDao;
+    BookmarkDao bookmarkDao;
+
+    Movie movie;
+    List<Favorite> favorites = new ArrayList<Favorite>();
+    List<Bookmark> bookmarks = new ArrayList<Bookmark>();
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894";
     private String url = "https://api.themoviedb.org/3";
     private String full_url = null;
@@ -83,6 +95,8 @@ public class fragment_main extends Fragment {
     private int totalMovie;
     private OnFragmentInteractionListener mListener;
     private String list;
+    private String userId = "0";
+    private int offset;
 
     AdapterMovie adapterMovie;
     public fragment_main() {
@@ -124,6 +138,10 @@ public class fragment_main extends Fragment {
         ButterKnife.bind(this, rootView);
         daoSession = new CariMovieContext().getDaoSession(fragment_main.this.getActivity());
         ratingDao = daoSession.getRatingDao();
+        movieDao = daoSession.getMovieDao();
+        favoriteDao = daoSession.getFavoriteDao();
+        bookmarkDao = daoSession.getBookmarkDao();
+
         page = 1;
         adapterMovie = new AdapterMovie(fragment_main.this.getActivity(), movieList);
         gdMain.setAdapter(adapterMovie);
@@ -135,6 +153,8 @@ public class fragment_main extends Fragment {
 
         if(list.equals("month"))
         {
+            offset = gdMain.getScrollY();
+            movieList.clear();
             Date date = new Date();
             Calendar c = Calendar.getInstance();
             c.setTime(date);
@@ -145,11 +165,53 @@ public class fragment_main extends Fragment {
 
             primaryRelease = "/discover/movie?primary_release_date.gte=" + weekBefore + "&primary_release_date.lte=" + now;
             full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
+            getAPIRequest = new JsonObjectRequest(Request.Method.GET, this.full_url, null, new Response.Listener<JSONObject>() { @Override public void onResponse(JSONObject response) { fillMovie(response); } }, new Response.ErrorListener() { @Override public void onErrorResponse(VolleyError error) { } });
+            Volley.newRequestQueue(getContext()).add(getAPIRequest);
+            txLoadMore.setVisibility(View.VISIBLE);
         }
-        else
+        else if(list.equals("popular"))
         {
+            offset = gdMain.getScrollY();
+            movieList.clear();
+            primaryRelease = "/discover/movie?sort_by=popularity.desc";
             full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
+            getAPIRequest = new JsonObjectRequest(Request.Method.GET, this.full_url, null, new Response.Listener<JSONObject>() { @Override public void onResponse(JSONObject response) { fillMovie(response); } }, new Response.ErrorListener() { @Override public void onErrorResponse(VolleyError error) { } });
+            Volley.newRequestQueue(getContext()).add(getAPIRequest);
+            txLoadMore.setVisibility(View.VISIBLE);
         }
+        else if(list.equals("favorites"))
+        {
+            movieList.clear();
+            favorites = favoriteDao.queryBuilder().where(FavoriteDao.Properties.IdUser.eq(userId)).list();
+            for(Favorite apart : favorites)
+            {
+                movie = movieDao.queryBuilder().where(MovieDao.Properties.Id.eq(apart.getIdMovie())).unique();
+                movieList.add(movie);
+
+            }
+            adapterMovie.notifyDataSetChanged();
+            txTitle.setText("Car I-Movie, " + favorites.size() + " Movies");
+            txLoadMore.setVisibility(View.GONE);
+        }
+        else if(list.equals("bookmark"))
+        {
+            movieList.clear();
+            bookmarks = bookmarkDao.queryBuilder().where(BookmarkDao.Properties.IdUser.eq(userId)).list();
+            for(Bookmark apart : bookmarks)
+            {
+                movie = movieDao.queryBuilder().where(MovieDao.Properties.Id.eq(apart.getIdMovie())).unique();
+                movieList.add(movie);
+
+            }
+            adapterMovie.notifyDataSetChanged();
+            txTitle.setText("Car I-Movie, " + favorites.size() + " Movies");
+            txLoadMore.setVisibility(View.GONE);
+        }
+
+//        else
+//        {
+//            full_url = url + primaryRelease + "&page="+ String.valueOf(page) + api_key;
+//        }
 
         gdMain.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -191,18 +253,6 @@ public class fragment_main extends Fragment {
                 gdMain.setNumColumns(5);
             }
         });
-        getAPIRequest = new JsonObjectRequest(Request.Method.GET, this.full_url, null, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                fillMovie(response);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-            }
-        });
-        Volley.newRequestQueue(getContext()).add(getAPIRequest);
 
         txLoadMore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -286,6 +336,7 @@ public class fragment_main extends Fragment {
     }
 
     private void fillMovie(JSONObject response) {
+        offset = gdMain.getScrollY();
         System.out.println("url link: " + full_url);
         System.out.println("response: " + response.toString());
         JSONArray resultsJA = null;
@@ -305,6 +356,8 @@ public class fragment_main extends Fragment {
                 if(!result.getString("release_date").equals("")) {
                     year = Integer.parseInt(result.getString("release_date").substring(0, 4));
                 }
+                String umur = result.getBoolean("adult") ? "18+" : "18-";
+
                 Rating rating = new Rating();
                 rating.setIdMovie(id);
                 rating.setIdUser("0");
@@ -317,9 +370,12 @@ public class fragment_main extends Fragment {
                 movie.setImage(imageUrl + image);
                 movie.setBackground(imageUrl + background);
                 movie.setDetail(overview);
+                movie.setUmur(umur);
                 movieList.add(movie);
             }
             adapterMovie.notifyDataSetChanged();
+            txTitle.setText("Car I-Movie, " + response.get("total_results") + " Movies");
+            gdMain.setScrollY(offset);
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -24,6 +24,7 @@ import com.secreal.cari_movie.Dao.DaoSession;
 import com.secreal.cari_movie.Dao.Favorite;
 import com.secreal.cari_movie.Dao.FavoriteDao;
 import com.secreal.cari_movie.Dao.Movie;
+import com.secreal.cari_movie.Dao.MovieDao;
 import com.secreal.cari_movie.Dao.Rating;
 import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.R;
@@ -65,6 +66,7 @@ public class fragment_detail extends Fragment {
     Favorite favorite;
     BookmarkDao bookmarkDao;
     Bookmark bookmark;
+    MovieDao movieDao;
     Movie movie;
     Float rating = 0.0f;
     String userId;
@@ -135,12 +137,15 @@ public class fragment_detail extends Fragment {
         ratingDao = daoSession.getRatingDao();
         favoriteDao = daoSession.getFavoriteDao();
         bookmarkDao = daoSession.getBookmarkDao();
+        movieDao = daoSession.getMovieDao();
 
         userId = "0";
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             movie = bundle.getParcelable("movie");
         }
+
+        movieDao.insertOrReplace(movie);
 
         full_url = url + movieDetail + movie.getId() + "/videos?" + api_key;
         JsonObjectRequest getTrailers = new JsonObjectRequest(Request.Method.GET, full_url, null, new Response.Listener<JSONObject>() {
