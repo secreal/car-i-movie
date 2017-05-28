@@ -1,5 +1,7 @@
 package com.secreal.cari_movie.ui.activity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -12,13 +14,29 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.secreal.cari_movie.R;
 import com.secreal.cari_movie.ui.fragment.fragment_main;
+import com.squareup.picasso.Picasso;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    String userId;
+    String userName;
+    String email;
+    String image;
+
+    @BindView(R.id.ivNavImage) ImageView ivNavImage;
+    @BindView(R.id.txNavName) TextView txNavName;
+    @BindView(R.id.txNavEmail) TextView txNavEmail;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +62,22 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View hView = navigationView.getHeaderView(0);
+        ButterKnife.bind(this, hView);
+
+        SharedPreferences prfs = getSharedPreferences("user", Context.MODE_PRIVATE);
+        userId = prfs.getString("userId", "0");
+        userName = prfs.getString("userName", "");
+        email = prfs.getString("email", "");
+        image = prfs.getString("image", "");
+        if(userId == "0") navigationView.setVisibility(View.GONE);
+        else
+        {
+            navigationView.setVisibility(View.VISIBLE);
+            txNavName.setText(userName);
+            txNavEmail.setText(email);
+            if(image != "") Picasso.with(this).load(image).into(ivNavImage);
+        }
 
         Bundle args = new Bundle(); fragment_main fragment = new fragment_main();
         args.putString("list", "month");

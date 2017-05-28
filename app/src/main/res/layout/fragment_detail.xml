@@ -19,6 +19,7 @@
         android:layout_height="match_parent"
         android:alpha="0.6"
         android:src="@android:color/black" />
+
     <!-- TODO: Update blank fragment layout -->
 
     <ScrollView
@@ -108,16 +109,16 @@
                     android:id="@+id/ivShare"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
-                    android:src="@drawable/share"
-                    android:layout_marginLeft="8dp" />
+                    android:layout_marginLeft="8dp"
+                    android:src="@drawable/share" />
+
                 <TextView
                     android:id="@+id/txDurasi"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
-                    android:textColor="@android:color/white"
-                    android:textStyle="bold"
                     android:layout_marginLeft="8dp"
-                    />
+                    android:textColor="@android:color/white"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
@@ -172,9 +173,9 @@
             </LinearLayout>
 
             <TextView
+                android:id="@+id/txTrailers"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/txTrailers"
                 android:text="Trailers"
                 android:textColor="@android:color/white"
                 android:textStyle="bold" />

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "42488958182",
+    "project_id": "car-i-movie"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42488958182:android:185e897b655b812d",
+        "android_client_info": {
+          "package_name": "com.secreal.cari_movie"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "42488958182-b2u42pqesbd0gb4vgsk7la2d730nbmam.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.secreal.cari_movie",
+            "certificate_hash": "91404a15fd216938a2803c9be345b135b08175f6"
+          }
+        },
+        {
+          "client_id": "42488958182-ebv5k89auuoai64t78ob8tj3c1g0ra50.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDn1UoBtVgBQKdyFPA6S5Ac_GhtYThtfJQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

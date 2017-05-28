@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            keyAlias 'carimovie'
+            keyPassword '1q3e2w1q3e'
+            storeFile file('D:/repo/cari-movie/keystore.jks')
+            storePassword '1q3e2w1q3e'
+        }
+    }
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
     defaultConfig {
@@ -42,4 +50,5 @@ dependencies {
     compile 'org.apmem.tools:layouts:1.10@aar'
     compile 'com.hedgehog.ratingbar:app:1.1.2'
     compile 'com.github.ligi:touchimageview:2.1'
+    compile 'com.google.android.gms:play-services-auth:10.0.1'
 }

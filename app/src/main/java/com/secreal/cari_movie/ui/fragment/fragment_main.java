@@ -1,10 +1,14 @@
 package com.secreal.cari_movie.ui.fragment;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +24,16 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.OptionalPendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.secreal.cari_movie.Dao.Bookmark;
 import com.secreal.cari_movie.Dao.BookmarkDao;
 import com.secreal.cari_movie.Dao.DaoSession;
@@ -32,6 +46,7 @@ import com.secreal.cari_movie.Dao.RatingDao;
 import com.secreal.cari_movie.R;
 import com.secreal.cari_movie.adapters.AdapterMovie;
 import com.secreal.cari_movie.extra.CariMovieContext;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -42,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -57,7 +73,7 @@ import static com.secreal.cari_movie.R.layout.fragment_main;
  * Use the {@link fragment_main#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class fragment_main extends Fragment {
+public class fragment_main extends Fragment implements GoogleApiClient.OnConnectionFailedListener{
 
 
     // TODO: Rename parameter arguments, choose names that match
@@ -78,6 +94,8 @@ public class fragment_main extends Fragment {
     @BindView(R.id.ivCol3) ImageView ivCol3;
     @BindView(R.id.ivCol4) ImageView ivCol4;
     @BindView(R.id.ivCol5) ImageView ivCol5;
+    @BindView(R.id.ivBackImageMain) ImageView ivBackImageMain;
+    @BindView(R.id.sign_in_button) SignInButton sign_in_button;
 
     JsonObjectRequest getAPIRequest;
     List<Movie> movieList = new ArrayList<Movie>();
@@ -87,10 +105,43 @@ public class fragment_main extends Fragment {
     FavoriteDao favoriteDao;
     BookmarkDao bookmarkDao;
 
+    private static final String TAG = "SignIn";
+
+    private GoogleApiClient mGoogleApiClient;
+    private static final int RC_SIGN_IN = 9001;
+
+    private ProgressDialog mProgressDialog;
+
     Movie movie;
     List<Favorite> favorites = new ArrayList<Favorite>();
     List<Bookmark> bookmarks = new ArrayList<Bookmark>();
     private String api_key = "&api_key=3efb22326c5656140de23f7cca01c894";
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+        if (opr.isDone()) {
+            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
+            // and the GoogleSignInResult will be available instantly.
+            Log.d(TAG, "Got cached sign-in");
+            GoogleSignInResult result = opr.get();
+            handleSignInResult(result);
+        } else {
+            // If the user has not previously signed in on this device or the sign-in has expired,
+            // this asynchronous branch will attempt to sign in the user silently.  Cross-device
+            // single sign-on will occur in this branch.
+            showProgressDialog();
+            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+                @Override
+                public void onResult(GoogleSignInResult googleSignInResult) {
+                    hideProgressDialog();
+                    handleSignInResult(googleSignInResult);
+                }
+            });
+        }
+    }
+
     private String url = "https://api.themoviedb.org/3";
     private String full_url = null;
     private String primaryRelease = "/discover/movie?primary_release_date.gte=2014-09-15&primary_release_date.lte=2014-10-22";
@@ -135,6 +186,16 @@ public class fragment_main extends Fragment {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN) {
+            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+            handleSignInResult(result);
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -150,6 +211,20 @@ public class fragment_main extends Fragment {
         adapterMovie = new AdapterMovie(fragment_main.this.getActivity(), movieList);
         gdMain.setAdapter(adapterMovie);
 
+        sign_in_button.setSize(SignInButton.SIZE_STANDARD);
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        // [END configure_signin]
+
+        // [START build_client]
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(fragment_main.this.getActivity())
+                .enableAutoManage(fragment_main.this.getActivity() /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
         SharedPreferences prefs = fragment_main.this.getActivity().getSharedPreferences("column", MODE_PRIVATE);
             gdMain.setNumColumns(prefs.getInt("size", 3));
 
@@ -158,6 +233,13 @@ public class fragment_main extends Fragment {
             list = bundle.getString("list");
         }
 
+
+        sign_in_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signIn();
+            }
+        });
         if(list.equals("month"))
         {
             offset = gdMain.getScrollY();
@@ -338,6 +420,12 @@ public class fragment_main extends Fragment {
         mListener = null;
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d(TAG, "onConnectionFailed:" + connectionResult);
+
+    }
+
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -393,9 +481,89 @@ public class fragment_main extends Fragment {
             }
             adapterMovie.notifyDataSetChanged();
             txTitle.setText("Car I-Movie, " + response.get("total_results") + " Movies");
+            if(movieList.size() > 19) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(new Random().nextInt(19) + 0).getBackground()).into(ivBackImageMain);
+            else if(movieList.size() > 0) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(0).getBackground()).into(ivBackImageMain);
             gdMain.setScrollY(offset);
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void signIn() {
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
+    }
+
+    private void handleSignInResult(GoogleSignInResult result) {
+        Log.d(TAG, "handleSignInResult:" + result.isSuccess());
+        if (result.isSuccess()) {
+            // Signed in successfully, show authenticated UI.
+            GoogleSignInAccount acct = result.getSignInAccount();
+//            mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
+            SharedPreferences preferences = fragment_main.this.getActivity().getSharedPreferences("user", fragment_main.this.getActivity().MODE_WORLD_WRITEABLE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userId", acct.getId());
+            editor.putString("userName", acct.getDisplayName());
+            editor.putString("email", acct.getEmail());
+            editor.putString("image", String.valueOf(acct.getPhotoUrl()));
+            editor.apply();
+
+            updateUI(true);
+        } else {
+            // Signed out, show unauthenticated UI.
+            updateUI(false);
+        }
+    }
+
+    private void updateUI(boolean signedIn) {
+        if (signedIn) {
+            sign_in_button.setVisibility(View.GONE);
+//            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+        } else {
+//            mStatusTextView.setText(R.string.signed_out);
+
+            sign_in_button.setVisibility(View.VISIBLE);
+//            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+        }
+    }
+
+    private void showProgressDialog() {
+        if (mProgressDialog == null) {
+            mProgressDialog = new ProgressDialog(fragment_main.this.getActivity());
+            mProgressDialog.setMessage(getString(R.string.loading));
+            mProgressDialog.setIndeterminate(true);
+        }
+
+        mProgressDialog.show();
+    }
+
+    private void hideProgressDialog() {
+        if (mProgressDialog != null && mProgressDialog.isShowing()) {
+            mProgressDialog.hide();
+        }
+    }
+
+    private void signOut() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        // [START_EXCLUDE]
+                        updateUI(false);
+                        // [END_EXCLUDE]
+                    }
+                });
+    }
+
+    private void revokeAccess() {
+        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        // [START_EXCLUDE]
+                        updateUI(false);
+                        // [END_EXCLUDE]
+                    }
+                });
     }
 }

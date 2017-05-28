@@ -1,82 +1,107 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="10dp"
     tools:context="com.secreal.cari_movie.ui.fragment.fragment_main">
 
-    <!-- TODO: Update blank fragment layout -->
-    <SearchView
-        android:id="@+id/svMovie"
+    <ImageView
+        android:id="@+id/ivBackImageMain"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:alpha="0.6"
+        android:scaleType="centerCrop" />
 
-    </SearchView>
-
-    <TextView
-        android:id="@+id/txTitle"
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Car I-Movie, 0 Movies" />
+        android:layout_height="match_parent"
+        android:alpha="0.6"
+        android:src="@android:color/white" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="24dp"
-        android:orientation="horizontal">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="10dp">
 
-        <View
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <ImageView
-            android:id="@+id/ivCol1"
+        <!-- TODO: Update blank fragment layout -->
+        <com.google.android.gms.common.SignInButton
+            android:id="@+id/sign_in_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter_1_black_48dp" />
+            android:layout_gravity="center"
+            android:visibility="visible" />
 
-        <ImageView
-            android:id="@+id/ivCol2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter_2_black_48dp" />
+        <SearchView
+            android:id="@+id/svMovie"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/ivCol3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter_3_black_48dp" />
+        </SearchView>
 
-        <ImageView
-            android:id="@+id/ivCol4"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/txTitle"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter_4_black_48dp" />
+            android:text="Car I-Movie, 0 Movies" />
 
-        <ImageView
-            android:id="@+id/ivCol5"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/ivCol1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_filter_1_black_48dp" />
+
+            <ImageView
+                android:id="@+id/ivCol2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_filter_2_black_48dp" />
+
+            <ImageView
+                android:id="@+id/ivCol3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_filter_3_black_48dp" />
+
+            <ImageView
+                android:id="@+id/ivCol4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_filter_4_black_48dp" />
+
+            <ImageView
+                android:id="@+id/ivCol5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_filter_5_black_48dp" />
+        </LinearLayout>
+
+        <GridView
+            android:id="@+id/gdMain"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:numColumns="3"></GridView>
+
+        <TextView
+            android:id="@+id/txLoadMore"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_filter_5_black_48dp" />
+            android:background="@android:color/holo_blue_bright"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="Load more ..."
+            android:textColor="@android:color/white" />
+
+
     </LinearLayout>
-
-    <GridView
-        android:id="@+id/gdMain"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:numColumns="3"></GridView>
-
-    <TextView
-        android:id="@+id/txLoadMore"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:padding="10dp"
-        android:textColor="@android:color/white"
-        android:background="@android:color/holo_blue_bright"
-        android:text="Load more ..." />
-
-
-</LinearLayout>
+</FrameLayout>
