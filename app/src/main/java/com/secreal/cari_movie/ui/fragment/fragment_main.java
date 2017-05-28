@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -85,9 +86,14 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
     private String mParam1;
     private String mParam2;
 
+    String userName;
+    String email;
+    String image;
+
     @BindView(R.id.gdMain) GridView gdMain;
     @BindView(R.id.txLoadMore) TextView txLoadMore;
     @BindView(R.id.txTitle) TextView txTitle;
+    @BindView(R.id.txLogout) TextView txLogout;
     @BindView(R.id.svMovie) SearchView svMovie;
     @BindView(R.id.ivCol1) ImageView ivCol1;
     @BindView(R.id.ivCol2) ImageView ivCol2;
@@ -196,6 +202,24 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.stopAutoManage((getActivity()));
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.stopAutoManage((getActivity()));
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
@@ -221,7 +245,7 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
         // Build a GoogleApiClient with access to the Google Sign-In API and the
         // options specified by gso.
         mGoogleApiClient = new GoogleApiClient.Builder(fragment_main.this.getActivity())
-                .enableAutoManage(fragment_main.this.getActivity() /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .enableAutoManage(fragment_main.this.getActivity() /* FragmentActivity */, fragment_main.this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
 
@@ -404,6 +428,12 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
             }
         };
         svMovie.setOnQueryTextListener(searchListener);
+        txLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                signOut();
+            }
+        });
         return rootView;
     }
 
@@ -511,19 +541,47 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
             updateUI(true);
         } else {
             // Signed out, show unauthenticated UI.
+            SharedPreferences preferences = fragment_main.this.getActivity().getSharedPreferences("user", fragment_main.this.getActivity().MODE_WORLD_WRITEABLE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userId", "");
+            editor.putString("userName", "");
+            editor.putString("email", "");
+            editor.putString("image", "");
+            editor.apply();
+
             updateUI(false);
         }
     }
 
     private void updateUI(boolean signedIn) {
+        SharedPreferences prfs = fragment_main.this.getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        userId = prfs.getString("userId", "0");
+        userName = prfs.getString("userName", "");
+        email = prfs.getString("email", "");
+        image = prfs.getString("image", "");
+
+        NavigationView navigationView = (NavigationView)getActivity().findViewById(R.id.nav_view);
+        View hView = navigationView.getHeaderView(0);
+        ImageView ivNavImage = (ImageView)hView.findViewById(R.id.ivNavImage);
+        TextView txNavName = (TextView)hView.findViewById(R.id.txNavName);
+        TextView txNavEmail = (TextView)hView.findViewById(R.id.txNavEmail);
         if (signedIn) {
             sign_in_button.setVisibility(View.GONE);
-//            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+            txLogout.setVisibility(View.VISIBLE);
+//            navigationView.setNavigationItemSelectedListener(this);
+            ivNavImage.setVisibility(View.VISIBLE);
+            txNavName.setText(userName);
+            txNavEmail.setText(email);
+            Picasso.with(fragment_main.this.getActivity()).load(image).into(ivNavImage);
+
         } else {
 //            mStatusTextView.setText(R.string.signed_out);
 
             sign_in_button.setVisibility(View.VISIBLE);
-//            findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+            txLogout.setVisibility(View.GONE);
+            ivNavImage.setVisibility(View.GONE);
+            txNavName.setText("");
+            txNavEmail.setText("");
         }
     }
 
@@ -549,6 +607,7 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
                     @Override
                     public void onResult(Status status) {
                         // [START_EXCLUDE]
+
                         updateUI(false);
                         // [END_EXCLUDE]
                     }
