@@ -1,7 +1,9 @@
 package com.secreal.cari_movie.ui.fragment;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -73,7 +75,7 @@ public class fragment_detail extends Fragment {
     MovieDao movieDao;
     Movie movie;
     Float rating = 0.0f;
-    String userId;
+    String userId = "0";
     Trailer trailer1, trailer2;
 
     List<Rating> lRating = new ArrayList<Rating>();
@@ -145,7 +147,9 @@ public class fragment_detail extends Fragment {
         bookmarkDao = daoSession.getBookmarkDao();
         movieDao = daoSession.getMovieDao();
 
-        userId = "0";
+        SharedPreferences prfs = fragment_detail.this.getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        userId = prfs.getString("userId", "0");
+
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             movie = bundle.getParcelable("movie");

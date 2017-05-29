@@ -19,6 +19,7 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -264,6 +265,9 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
                 signIn();
             }
         });
+        SharedPreferences prfs = fragment_main.this.getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        userId = prfs.getString("userId", "0");
+
         if(list.equals("month"))
         {
             offset = gdMain.getScrollY();
@@ -431,7 +435,26 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
         txLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signOut();
+                List<String> iseng = new ArrayList<String>();
+                iseng.add("mau keluar? gak boleh :D"); // 0
+                iseng.add("oke, selamat keluar..."); // 1
+                iseng.add("mau apa hayoo~"); // 2
+                iseng.add("gk bisa logout ni yee~"); // 3
+                iseng.add("mau logout yaa~"); // 4
+                iseng.add("logout sedang tidak bisa... hehe..."); // 5
+                iseng.add("yaudah logout aja sana..."); // 6
+                iseng.add("mau ke mana nih.. gk boleh logout.."); // 7
+                iseng.add("oke deh, keluar aja sana..."); // 8
+                iseng.add("aduh... jangan logout plis..."); // 9
+                iseng.add("neken apa tuh..."); //10
+                iseng.add("eits... tidak boleh logout :D"); //11
+                iseng.add("nanti aja logoutnya..."); //12
+                iseng.add("sabar... ini ujian"); //13
+                iseng.add("you can run but you can't hide"); //14
+                iseng.add("sip!"); //15
+                int angka = new Random().nextInt(iseng.size()) + 0;
+                Toast.makeText(fragment_main.this.getActivity(), iseng.get(angka), Toast.LENGTH_SHORT).show();
+                if(angka == 1 || angka == 6 || angka == 8 || angka == 15) signOut();
             }
         });
         return rootView;
@@ -496,7 +519,7 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
 
                 Rating rating = new Rating();
                 rating.setIdMovie(id);
-                rating.setIdUser("0");
+                rating.setIdUser(userId);
                 rating.setRating(jRating);
                 ratingDao.insertOrReplace(rating);
 
