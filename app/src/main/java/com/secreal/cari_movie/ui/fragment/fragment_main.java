@@ -304,11 +304,11 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
             {
                 movie = movieDao.queryBuilder().where(MovieDao.Properties.Id.eq(apart.getIdMovie())).unique();
                 movieList.add(movie);
-
             }
             adapterMovie.notifyDataSetChanged();
             txTitle.setText("Car I-Movie, " + favorites.size() + " Movies");
             txLoadMore.setVisibility(View.GONE);
+            if(movieList.size() > 0) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(new Random().nextInt(movieList.size() > 19 ? 19 : movieList.size()) + 0).getBackground()).into(ivBackImageMain);
         }
         else if(list.equals("bookmark"))
         {
@@ -318,11 +318,11 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
             {
                 movie = movieDao.queryBuilder().where(MovieDao.Properties.Id.eq(apart.getIdMovie())).unique();
                 movieList.add(movie);
-
             }
             adapterMovie.notifyDataSetChanged();
             txTitle.setText("Car I-Movie, " + favorites.size() + " Movies");
             txLoadMore.setVisibility(View.GONE);
+            if(movieList.size() > 0) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(new Random().nextInt(movieList.size() > 19 ? 19 : movieList.size()) + 0).getBackground()).into(ivBackImageMain);
         }
 
 //        else
@@ -534,8 +534,7 @@ public class fragment_main extends Fragment implements GoogleApiClient.OnConnect
             }
             adapterMovie.notifyDataSetChanged();
             txTitle.setText("Car I-Movie, " + response.get("total_results") + " Movies");
-            if(movieList.size() > 19) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(new Random().nextInt(19) + 0).getBackground()).into(ivBackImageMain);
-            else if(movieList.size() > 0) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(0).getBackground()).into(ivBackImageMain);
+            if(movieList.size() > 0) Picasso.with(fragment_main.this.getActivity()).load(movieList.get(new Random().nextInt(movieList.size() > 19 ? 19 : movieList.size()) + 0).getBackground()).into(ivBackImageMain);
             gdMain.setScrollY(offset);
         } catch (JSONException e) {
             e.printStackTrace();
